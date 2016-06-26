@@ -90,6 +90,21 @@ function getTaskLists($service) {
     return;
 }
 
+// taskDate is a string in form: 2010-10-15
+function addTask($service, $taskListId, $title, $note, $taskDate) {
+    $task = new Google_Service_Tasks_Task();
+    $task->setTitle($title);
+    $task->setNotes($note);
+    if (!empty($taskDate)) {
+        $task->setDue($taskDate . 'T12:00:00.000Z');
+    }
+    $tasks = $service->tasks;
+    $result = $tasks->insert($taskListId, $task);
+    header('Content-type: application/json');
+    echo json_encode($result);
+    return;
+}
+
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Tasks($client);
@@ -100,8 +115,8 @@ if (!isset($_GET['method'])) {
 }
 $method = $_GET['method'];
 if ($method == 'getTaskLists') {
-   getTaskLists($service);
+    getTaskLists($service);
+} else if ($method == 'addTask') {
+    addTask($service, $_GET['taskListId'], $_GET['title'], $_GET['note'], $_GET['taskDate']);
 }
-
-
 ?>
