@@ -47,10 +47,10 @@
 </select>
 <br/>
     <label for="task-title">Title:</label>
-    <input type="text" name="task-title" id="task-title" autofocus value="<? print(htmlEntities($_GET['startingTitle'], ENT_QUOTES); ?>"/>
+    <input type="text" name="task-title" id="task-title" autofocus value="<? print(htmlEntities($_GET['startingTitle'], ENT_QUOTES)); ?>"/>
     <label for="task-date">Date:</label>
     <input type="text" name="task-date" id="task-date" />
-    <textarea name="task-note" id="task-note"><? print(htmlEntities($_GET['startingNote'], ENT_QUOTES); ?></textarea>
+    <textarea name="task-note" id="task-note"><? print(htmlEntities($_GET['startingNote'], ENT_QUOTES)); ?></textarea>
     <form name="new-task" id="new-task"> 
     <input type="submit" name="add" id="add-button" value="Add" />
   </form>
@@ -64,7 +64,6 @@
 <script>
   // When the page loads.
   $(function() {
-    $('#tasklist').bind('change', loadTasks);
     $('#new-task').bind('submit', onNewTaskFormSubmit);
     
     datePicker = $("#task-date").datepicker({
