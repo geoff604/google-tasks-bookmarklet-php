@@ -47,10 +47,10 @@
 </select>
 <br/>
     <label for="task-title">Title:</label>
-    <input type="text" name="task-title" id="task-title" autofocus value="<?= startingTitle ?>"/>
+    <input type="text" name="task-title" id="task-title" autofocus value="<? print(htmlEntities($_GET['startingTitle'], ENT_QUOTES); ?>"/>
     <label for="task-date">Date:</label>
     <input type="text" name="task-date" id="task-date" />
-    <textarea name="task-note" id="task-note"><?= startingNote ?></textarea>
+    <textarea name="task-note" id="task-note"><? print(htmlEntities($_GET['startingNote'], ENT_QUOTES); ?></textarea>
     <form name="new-task" id="new-task"> 
     <input type="submit" name="add" id="add-button" value="Add" />
   </form>
@@ -77,10 +77,10 @@
   /**
    * Load the available task lists.
    */
-  function loadTaskLists() {
-    google.script.run.withSuccessHandler(showTaskLists)
-        .withFailureHandler(showError)
-        .getTaskLists();
+  function loadTaskLists() {      
+    $.get("backend.php?method=getTaskLists", function(data) {
+       showTaskLists(data);
+    });
   }
 
   /**
@@ -93,67 +93,9 @@
     taskLists.forEach(function(taskList) {
       var option = $('<option>')
           .attr('value', taskList.id)
-          .text(taskList.name);
+          .text(taskList.title);
       select.append(option);
     });
-  }
-
-  /**
-   * Load the tasks in the currently selected task list.
-   */
-  function loadTasks() {
-  }
-
-  /**
-   * Show the returned tasks on the page.
-   * @param {Array.<Object>} tasks The tasks to show.
-   */
-  function showTasks(tasks) {
-    var list = $('#tasks').empty();
-    if (tasks.length > 0) {
-      tasks.forEach(function(task) {
-        var item = $('<li>');
-        var checkbox = $('<input type="checkbox">')
-            .data('taskId', task.id)
-            .bind('change', onCheckBoxChange);
-        item.append(checkbox);
-
-        var title = $('<span>')
-            .text(task.title);
-        item.append(title);
-
-        if (task.completed) {
-          checkbox.prop('checked', true);
-          title.css('text-decoration', 'line-through')
-        }
-
-        list.append(item);
-      });
-    } else {
-      list.text('No tasks');
-    }
-  }
-
-  /**
-   * A callback function that runs when a task is checked or unchecked.
-   */
-  function onCheckBoxChange() {
-    var checkbox = $(this);
-    var title = checkbox.siblings('span');
-    var isChecked = checkbox.prop('checked');
-    var taskListId = $('#tasklist').val();
-    var taskId = checkbox.data('taskId');
-    if (isChecked) {
-      title.css('text-decoration', 'line-through');
-    } else {
-      title.css('text-decoration', 'none');
-    }
-    google.script.run.withSuccessHandler(function() {
-      title.effect("highlight", {
-        duration: 1500
-      });
-    }).withFailureHandler(showError)
-      .setCompleted(taskListId, taskId, isChecked);
   }
 
   /**
@@ -166,11 +108,17 @@
     var title = titleTextBox.val();
     var note = noteTextBox.val();
     var dateObj = $("#task-date").datepicker( "getDate" );
-    var date = dateObj ? dateObj.toISOString() : undefined;
-    google.script.run.withSuccessHandler(function() {
-       $("#outer").html("<p>Task added.</p>");
-    }).withFailureHandler(showError)
-      .addTask(taskListId, title, note, date);
+    var date = dateObj ? dateObj.getFullYear() + '-' + (dateObj.getMonth()+1) + '-' + dateObj.getDate() : "";
+    var dateArgument;
+    if (date) {
+        dateArgument = "&taskDate=" + date;
+    }
+
+    $.get("backend.php?method=addTask&taskListId=" + encodeURIComponent(taskListId) +
+       "&title=" + encodeURIComponent(title) + "&note=" + encodeURIComponent(note) +
+       dateArgument, function(data) {
+           $("#outer").html("<p>Task added.</p>");
+       });
     return false;
   }
 
