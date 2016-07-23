@@ -4,6 +4,8 @@ require_once '/home/gpeters/tasksapiapp/vendor/autoload.php';
 define('APPLICATION_NAME', 'Geoff Tasks');
 define('CREDENTIALS_PATH', '/home/gpeters/.credentials/tasks-php-gpeters.json');
 define('CLIENT_SECRET_PATH', '/home/gpeters/tasksapiapp/client_secret.json');
+define('TASK_LISTS_CACHE_PATH', '/home/gpeters/tasksCache/tasks-php-gpeters-task-list-cache.json');
+
 // If modifying these scopes, delete your previously saved credentials
 // at CREDENTIALS_PATH.
 define('SCOPES', implode(' ', array(
@@ -42,6 +44,21 @@ function getClient() {
     file_put_contents($credentialsPath, $client->getAccessToken());
   }
   return $client;
+}
+
+function storeTaskListsInCache($jsonTaskLists) {
+    file_put_contents(TASK_LISTS_CACHE_PATH, $jsonTaskLists);
+}
+
+function getCachedTaskLists() {
+    header('Content-type: application/json');
+    if (!is_readable(TASK_LISTS_CACHE_PATH)) {
+        echo "[]";
+        return;
+    }
+    $jsonTaskLists = file_get_contents(TASK_LISTS_CACHE_PATH);
+    echo $jsonTaskLists;
+    return;
 }
 
 function getTaskLists($service) {
@@ -85,8 +102,11 @@ function getTaskLists($service) {
     }
     usort($resultArray, 'sort_by_order');
 
+    $jsonTaskLists = json_encode($resultArray);
+    storeTaskListsInCache($jsonTaskLists);
+
     header('Content-type: application/json');
-    echo json_encode($resultArray);
+    echo $jsonTaskLists;
     return;
 }
 
@@ -114,7 +134,9 @@ if (!isset($_GET['method'])) {
     exit;
 }
 $method = $_GET['method'];
-if ($method == 'getTaskLists') {
+if ($method == 'getCachedTaskLists') {
+    getCachedTaskLists();
+} else if ($method == 'getTaskLists') {
     getTaskLists($service);
 } else if ($method == 'addTask') {
     addTask($service, $_GET['taskListId'], $_GET['title'], $_GET['note'], $_GET['taskDate']);
