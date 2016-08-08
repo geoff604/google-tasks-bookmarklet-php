@@ -62,7 +62,7 @@
         var note = noteTextBox.val();
         var dateObj = $("#task-date").datepicker( "getDate" );
         var date = dateObj ? dateObj.getFullYear() + '-' + (dateObj.getMonth()+1) + '-' + dateObj.getDate() : "";
-        var dateArgument;
+        var dateArgument = "";
         if (date) {
             dateArgument = "&taskDate=" + date;
         }
