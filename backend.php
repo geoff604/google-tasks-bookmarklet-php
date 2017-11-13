@@ -22,7 +22,7 @@ function getClient() {
   $client->setScopes(SCOPES);
   $client->setAuthConfigFile(CLIENT_SECRET_PATH);
   $client->setAccessType('offline');
-  $client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/tasks/auth.php');
+  $client->setRedirectUri('https://' . $_SERVER['HTTP_HOST'] . '/tasks/auth.php');
 
   // Load previously authorized credentials from a file.
   $credentialsPath = CREDENTIALS_PATH;

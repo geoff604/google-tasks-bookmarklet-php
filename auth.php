@@ -20,7 +20,7 @@ function registerAccessToken($authCode) {
   $client->setScopes(SCOPES);
   $client->setAuthConfigFile(CLIENT_SECRET_PATH);
   $client->setAccessType('offline');
-  $client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/tasks/auth.php');
+  $client->setRedirectUri('https://' . $_SERVER['HTTP_HOST'] . '/tasks/auth.php');
 
   $credentialsPath = CREDENTIALS_PATH;
   // Exchange authorization code for an access token.
